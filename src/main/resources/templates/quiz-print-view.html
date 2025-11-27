@@ -43,7 +43,8 @@
             width: 210mm;
             min-height: 297mm;
             margin: 0 auto;
-            padding: 15mm;
+            padding: 10mm;
+            /* Reduced padding */
             position: relative;
             box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
         }
@@ -53,7 +54,7 @@
            ========================================= */
         .controls {
             max-width: 210mm;
-            margin: 0 auto 15px auto;
+            margin: 0 auto 10px auto;
             display: flex;
             justify-content: space-between;
             background: #fff;
@@ -63,13 +64,15 @@
         }
 
         .btn {
-            padding: 8px 16px;
+            padding: 6px 12px;
+            /* Smaller buttons */
             border: 2px solid #333;
             background: #fff;
             color: #333;
             font-weight: bold;
             cursor: pointer;
             margin-right: 10px;
+            font-size: 0.9rem;
         }
 
         .btn:hover {
@@ -86,52 +89,69 @@
            ========================================= */
         .header-section {
             border-bottom: var(--border-thick);
-            padding-bottom: 20px;
-            margin-bottom: 30px;
-            display: flex;
-            justify-content: space-between;
-            align-items: flex-start;
+            padding-bottom: 10px;
+            /* Reduced padding */
+            margin-bottom: 15px;
+            /* Reduced margin */
+            display: grid;
+            /* Changed to Grid for better column control */
+            grid-template-columns: 1fr 120px;
+            /* Specific width for score box */
+            gap: 20px;
+            align-items: start;
         }
 
         .header-info h1 {
             font-family: var(--font-sans);
-            font-size: 1.8rem;
-            margin: 0 0 10px 0;
+            font-size: 1.5rem;
+            /* Slightly smaller font */
+            margin: 0 0 5px 0;
             text-transform: uppercase;
         }
 
         .meta-grid {
             display: grid;
-            grid-template-columns: auto auto;
-            gap: 5px 20px;
-            font-size: 0.9rem;
+            grid-template-columns: auto 1fr;
+            /* Label gets auto width, Value takes rest */
+            gap: 2px 15px;
+            /* Tighter gap */
+            font-size: 0.85rem;
+            /* Smaller font */
+            align-items: baseline;
+            /* Align text baselines */
         }
 
         .meta-label {
             font-weight: bold;
             font-family: var(--font-sans);
+            white-space: nowrap;
         }
 
         /* Score Badge - High Contrast Box */
         .score-box {
             border: var(--border-thick);
-            padding: 10px 20px;
+            padding: 5px;
+            /* Reduced padding inside score box */
             text-align: center;
-            min-width: 120px;
+            height: 100%;
+            /* Match height of info section if needed, though grid handles alignment */
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
         }
 
         .score-val {
-            font-size: 2.5rem;
+            font-size: 2rem;
             font-weight: 900;
             line-height: 1;
             display: block;
         }
 
         .score-max {
-            font-size: 0.9rem;
+            font-size: 0.8rem;
             border-top: 1px solid #000;
             display: block;
-            margin-top: 5px;
+            margin-top: 2px;
             padding-top: 2px;
         }
 
@@ -139,33 +159,34 @@
            5. QUESTIONS LAYOUT
            ========================================= */
         .question-block {
-            margin-bottom: 25px;
+            margin-bottom: 15px;
+            /* Reduced margin */
             page-break-inside: avoid;
             border-bottom: 1px dashed #ccc;
-            padding-bottom: 20px;
+            padding-bottom: 10px;
+            /* Reduced padding */
         }
 
-        .q-meta {
-            display: flex;
-            align-items: center;
-            margin-bottom: 10px;
-            font-family: var(--font-sans);
-        }
-
-        .q-num {
-            font-weight: 900;
-            font-size: 1.2rem;
-            margin-right: 10px;
+        /* Combined Meta and Text Container */
+        .q-header-combined {
+            margin-bottom: 8px;
+            line-height: 1.4;
         }
 
         /* Status Indicators (No Color Reliance) */
         .status-badge {
             border: 1px solid #000;
-            padding: 2px 8px;
-            font-size: 0.7rem;
+            padding: 1px 6px;
+            /* Smaller padding */
+            font-size: 0.65rem;
+            /* Smaller font */
             text-transform: uppercase;
             font-weight: bold;
-            margin-right: 10px;
+            margin-right: 8px;
+            display: inline-block;
+            vertical-align: middle;
+            transform: translateY(-2px);
+            /* visual alignment */
         }
 
         .status-correct {
@@ -178,33 +199,45 @@
             color: #fff;
         }
 
-        .q-text {
+        .q-text-inline {
             font-weight: 500;
-            margin-bottom: 15px;
-            font-size: 1.05rem;
-            line-height: 1.4;
+            font-size: 1rem;
+            display: inline;
+            /* Makes text flow next to badge */
         }
 
-        /* Options Layout */
+        /* Options Layout - 2 Columns & Indented */
         .options-list {
             list-style: none;
             padding: 0;
-            margin: 0;
+            margin: 0 0 0 20px;
+            /* Indentation added */
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            /* 2 Columns */
+            column-gap: 15px;
+            row-gap: 2px;
         }
 
         .opt-row {
             display: flex;
-            align-items: baseline;
-            padding: 6px 0;
+            align-items: flex-start;
+            /* Align top for multiline text */
+            padding: 2px 0;
             position: relative;
+            font-size: 0.9rem;
+            /* Slightly smaller options text */
         }
 
         /* Checkboxes for print simulation */
         .opt-check {
-            width: 18px;
-            height: 18px;
-            border: 2px solid #000;
-            margin-right: 10px;
+            width: 14px;
+            /* Smaller checkbox */
+            height: 14px;
+            border: 1.5px solid #000;
+            margin-right: 6px;
+            margin-top: 3px;
+            /* Align with text */
             display: flex;
             align-items: center;
             justify-content: center;
@@ -219,8 +252,8 @@
 
         .selected .opt-check::after {
             content: "";
-            width: 6px;
-            height: 6px;
+            width: 4px;
+            height: 4px;
             background: #fff;
             display: block;
         }
@@ -232,11 +265,12 @@
 
         .correct-key::after {
             content: " (KEY)";
-            font-size: 0.7em;
+            font-size: 0.65em;
             font-family: var(--font-sans);
             border: 1px solid #000;
-            padding: 1px 4px;
-            margin-left: 8px;
+            padding: 0px 3px;
+            margin-left: 4px;
+            vertical-align: middle;
         }
 
         /* Strike through wrong answers */
@@ -251,21 +285,25 @@
             text-align: center;
             font-family: var(--font-sans);
             font-weight: 700;
-            font-size: 1.4rem;
+            font-size: 1.2rem;
+            /* Smaller title */
             border-top: 1px solid #000;
             border-bottom: 1px solid #000;
-            padding: 5px;
-            margin: 30px 0;
+            padding: 3px;
+            margin: 20px 0 10px 0;
+            /* Reduced margin */
             background: #f9f9f9;
         }
 
         .feedback-container {
-            margin-top: 10px;
-            padding: 5px;
-            border-left: 3px solid #666;
+            margin-top: 5px;
+            padding: 3px 5px;
+            border-left: 2px solid #666;
             background-color: #f9f9f9;
-            font-size: 0.9rem;
+            font-size: 0.85rem;
             font-style: italic;
+            margin-left: 20px;
+            /* Align with options */
         }
 
         /* =========================================
@@ -402,13 +440,11 @@
 
                 <div th:remove="tag" th:with="hasWrong=${#aggregates.sum(q.options.![isSelectedAndWrong ? 1 : 0]) > 0}">
 
-                    <div class="q-meta">
-                        <span class="q-num" th:text="'Q' + ${q.questionNumber} + '.'">1.</span>
+                    <div class="q-header-combined">
                         <span class="status-badge status-correct" th:if="${!hasWrong}">Correct</span>
-                        <span class="status-badge status-wrong" th:if="${hasWrong}">Review Needed</span>
+                        <span class="status-badge status-wrong" th:if="${hasWrong}">Review</span>
+                        <span class="q-text-inline" th:utext="${q.questionHtml}">Question Text</span>
                     </div>
-
-                    <div class="q-text" th:utext="${q.questionHtml}">Question Text</div>
 
                     <ul class="options-list">
                         <li th:each="opt : ${q.options}" class="opt-row"
@@ -433,18 +469,17 @@
         <!-- Only display if there are incorrect questions (provided by Java controller) -->
         <div class="retake-section" th:if="${!reviewQuestions.empty}">
             <div class="section-title page-break-before">RETAKE INCORRECT QUESTIONS</div>
-            <p style="text-align:center; font-style:italic; margin-bottom:20px;">
+            <p style="text-align:center; font-style:italic; margin-bottom:10px; font-size: 0.9rem;">
                 Practice Area: Attempt these questions again without looking at the key.
             </p>
 
             <!-- Loop through the pre-filtered Review Questions -->
             <div th:each="q : ${reviewQuestions}" class="question-block">
 
-                <div class="q-meta">
-                    <span class="q-num" th:text="'Q' + ${q.questionNumber} + '.'">1.</span>
+                <div class="q-header-combined">
+                    <!-- Removed Badges for Retake Section -->
+                    <span class="q-text-inline" th:utext="${q.questionHtml}">Question Text</span>
                 </div>
-
-                <div class="q-text" th:utext="${q.questionHtml}">Question Text</div>
 
                 <ul class="options-list">
                     <li th:each="opt : ${q.options}" class="opt-row"
