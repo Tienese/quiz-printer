@@ -36,10 +36,7 @@ public class QuizPrintController {
                 return "error";
             }
 
-            // --- UPDATED: Filter for Review Sheet ---
-            // A question is "Incorrect" if:
-            // 1. The student selected a wrong option (Commission Error)
-            // 2. OR The student failed to select a correct option (Omission Error)
+            // --- Filter for Review Sheet ---
             var reviewQuestions = quizData.questions().stream()
                     .filter(q -> q.options().stream()
                             .anyMatch(o -> o.isSelectedAndWrong() || (o.isCorrect() && !o.isSelected())))
@@ -47,13 +44,20 @@ public class QuizPrintController {
 
             logger.info("Review Sheet: Found {} questions to review.", reviewQuestions.size());
 
-            // Pass the filtered list separately
             model.addAttribute("reviewQuestions", reviewQuestions);
-
             model.addAttribute("quizTitle", quizData.quizTitle());
             model.addAttribute("quizId", quizData.quizId());
             model.addAttribute("studentName", quizData.studentName());
             model.addAttribute("studentId", quizData.studentId());
+
+            // NEW: Metadata fields
+            model.addAttribute("startedAt", quizData.startedAt());
+            model.addAttribute("finishedAt", quizData.finishedAt());
+            model.addAttribute("timeSpent", quizData.timeSpent());
+            model.addAttribute("timeLimit", quizData.timeLimit());
+            
+            model.addAttribute("attempt", quizData.attempt());
+
             model.addAttribute("score", quizData.score());
             model.addAttribute("questions", quizData.questions());
             model.addAttribute("pointsPossible", quizData.pointsPossible());

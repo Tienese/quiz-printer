@@ -7,6 +7,10 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
+import java.time.Duration;
+import java.time.Instant;
+import java.time.ZoneId;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -18,6 +22,8 @@ public class QuizMergerService {
     private static final Logger logger = LoggerFactory.getLogger(QuizMergerService.class);
     private final CanvasApiService apiService;
     private final ObjectMapper mapper;
+    private final DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm")
+            .withZone(ZoneId.systemDefault());
 
     public QuizMergerService(CanvasApiService apiService, ObjectMapper mapper) {
         this.apiService = apiService;
@@ -28,56 +34,97 @@ public class QuizMergerService {
         try {
             // 1. Fetch Data
             String questionsJson = apiService.getQuizQuestionsJson(courseId, quizId);
+            // Keep the assignment submission JSON for answer data (submission_history)
             String submissionJson = apiService.getSubmissionJson(courseId, assignId, studentId);
-            List<CanvasUser> users = apiService.getCourseUsers(courseId);
+            // NEW: Fetch Quiz Submission specifically for time metadata
+            String quizSubmissionJson = apiService.getQuizSubmissionJson(courseId, quizId, studentId);
 
+            List<CanvasUser> users = apiService.getCourseUsers(courseId);
             CanvasQuiz quizDetails = apiService.getQuiz(courseId, quizId);
-            // Find the name
-            String studentName = users.stream()
+
+            // Find the student user object
+            CanvasUser studentUser = users.stream()
                     .filter(u -> String.valueOf(u.id()).equals(studentId))
                     .findFirst()
-                    .map(CanvasUser::name)
-                    .orElse("Student ID: " + studentId); // Fallback
+                    .orElse(null);
+
+            String studentName = (studentUser != null) ? studentUser.name() : "Student ID: " + studentId;
+
             // 2. Parse Trees
             JsonNode questionsRoot = mapper.readTree(questionsJson);
             JsonNode submissionNode = mapper.readTree(submissionJson);
+            JsonNode quizSubmissionRoot = mapper.readTree(quizSubmissionJson);
 
-            // 3. Extract Answer Data (Robust Fallback Logic)
-            JsonNode submissionData = null;
-            if (submissionNode.has("submission_history")) {
-                JsonNode history = submissionNode.get("submission_history");
-                if (history != null && history.isArray() && history.size() > 0) {
-                    JsonNode latestAttempt = history.get(history.size() - 1);
-                    if (latestAttempt.has("submission_data")) {
-                        submissionData = latestAttempt.get("submission_data");
+            // 3. Extract Metadata from Quiz Submission (New API Call)
+            String startedAtStr = "N/A";
+            String finishedAtStr = "N/A";
+            String timeSpent = "N/A";
+
+            // The quiz submission API returns { "quiz_submissions": [ ... ] }
+            if (quizSubmissionRoot.has("quiz_submissions")) {
+                JsonNode quizSubs = quizSubmissionRoot.get("quiz_submissions");
+                if (quizSubs.isArray() && quizSubs.size() > 0) {
+                    JsonNode quizSub = quizSubs.get(0); // Get the first (and should be only) one for this user
+
+                    if (quizSub.has("started_at") && !quizSub.get("started_at").isNull()) {
+                        Instant start = Instant.parse(quizSub.get("started_at").asText());
+                        startedAtStr = formatter.format(start);
+                    }
+
+                    if (quizSub.has("finished_at") && !quizSub.get("finished_at").isNull()) {
+                        Instant finish = Instant.parse(quizSub.get("finished_at").asText());
+                        finishedAtStr = formatter.format(finish);
+                    }
+                    if (quizSub.has("time_spent") && !quizSub.get("time_spent").isNull()) {
+                        int timeSpentInSecond = quizSub.get("time_spent").asInt();
+                        Duration duration = Duration.ofSeconds(timeSpentInSecond);
+
+                        long hours = duration.toHours();
+                        long minutes = duration.toMinutesPart();
+                        long seconds = duration.toSecondsPart();
+
+                        timeSpent = String.format("%d:%02d:%02d", hours, minutes, seconds);
                     }
                 }
             }
 
-            // Fallback 1: Check root
+            // 4. Extract Answer Data & Attempt from Assignment Submission
+            JsonNode submissionData = null;
+            int attempt = 0;
+
+            if (submissionNode.has("submission_history")) {
+                JsonNode history = submissionNode.get("submission_history");
+                if (history != null && history.isArray() && history.size() > 0) {
+                    // Get latest attempt for answers
+                    JsonNode latestAttempt = history.get(history.size() - 1);
+
+                    if (latestAttempt.has("submission_data")) {
+                        submissionData = latestAttempt.get("submission_data");
+                    }
+
+                    attempt = latestAttempt.path("attempt").asInt(0);
+                }
+            }
+
+            // Fallback for submission_data if not in history
             if (submissionData == null && submissionNode.has("submission_data")) {
                 submissionData = submissionNode.get("submission_data");
             }
 
-            // Fallback 2: Empty
+            // Fallback for submission data content
             if (submissionData == null) {
                 logger.warn("No submission data found for student " + studentId + ". Printing blank quiz.");
                 submissionData = mapper.createArrayNode();
             }
 
-            // 4. Metadata
+            // 5. Metadata
             String score = submissionNode.path("score").asText("0");
             String quizTitle = quizDetails.title();
             int timeLimit = quizDetails.time_limit();
             List<String> questionTypes = quizDetails.question_types();
             long pointsPossible = quizDetails.points_possible();
-            
-            /*
-             * long points_possible,
-             * List<String> question_types) {
-             */
 
-            // 5. Merge Loop
+            // 6. Merge Loop
             List<PrintableQuestion> mergedQuestions = new ArrayList<>();
             if (questionsRoot.isArray()) {
                 int index = 1; // Start counting for question numbering
@@ -86,9 +133,9 @@ public class QuizMergerService {
                 }
             }
 
-            return new PrintableQuiz(quizId, studentId, quizTitle, studentName, score, pointsPossible, timeLimit,
-                    questionTypes,
-                    mergedQuestions);
+            return new PrintableQuiz(quizId, studentId, quizTitle, studentName, score,
+                    startedAtStr, finishedAtStr, timeSpent, attempt,
+                    pointsPossible, timeLimit, questionTypes, mergedQuestions);
 
         } catch (Exception e) {
             logger.error("Failed to merge quiz", e);
@@ -101,15 +148,11 @@ public class QuizMergerService {
         String questionText = qNode.path("question_text").asText("Question");
         String qType = qNode.path("question_type").asText("unknown");
 
-        // Extract Feedback (General)
-        // Prioritize "neutral_comments" (General Feedback)
+        // Extract Feedback
         String feedback = qNode.path("neutral_comments").asText(null);
         if (feedback == null || feedback.trim().isEmpty()) {
-            // Fallback to "correct_comments" if general is missing (common in some Canvas
-            // quizzes)
             feedback = qNode.path("correct_comments").asText(null);
         }
-        // Sanitize empty strings to null
         if (feedback != null && feedback.trim().isEmpty()) {
             feedback = null;
         }
@@ -133,17 +176,12 @@ public class QuizMergerService {
         } else if ("multiple_dropdowns_question".equals(qType)) {
             printableOptions = processDropdownOptions(qNode, studentAnswerNode);
         } else {
-            // Standard MC / Multiple Answer / True False
             printableOptions = processStandardOptions(qNode, studentAnswerNode, qType);
         }
 
         // C. Determine if Unanswered
-        // A question is unanswered if NO options are selected by the student
         boolean isUnanswered = printableOptions.stream().noneMatch(PrintableOption::isSelected);
 
-        // Special check for Matching/Dropdowns where "No Answer" text might be generated
-        // (This logic might need tuning depending on how strict you want "unanswered" to be for complex types)
-        
         return new PrintableQuestion(questionNumber, questionText, printableOptions, feedback, isUnanswered);
     }
 

@@ -8,6 +8,7 @@ public record CanvasQuiz(
         int question_count,
         long assignment_id, // NEW: The magic link
         long points_possible,
+        int time_spent,
         int time_limit,
         List<String> question_types) {
 }

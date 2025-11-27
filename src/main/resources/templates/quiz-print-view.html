@@ -148,7 +148,6 @@
         .question-block {
             margin-bottom: 15px;
             page-break-inside: avoid;
-            border-bottom: 1px dashed #ccc;
             padding-bottom: 10px;
         }
 
@@ -161,7 +160,7 @@
         /* Status Badges */
         .status-badge {
             border: 1px solid #000;
-            padding: 1px 6px;
+            padding: 1px 7px;
             font-size: 0.65rem;
             text-transform: uppercase;
             font-weight: bold;
@@ -181,7 +180,7 @@
             color: #fff;
         }
 
-        /* NEW: Unanswered Badge Style */
+        /* Unanswered Badge Style */
         .status-unanswered {
             background: #fff;
             color: #000;
@@ -207,10 +206,19 @@
 
         .opt-row {
             display: flex;
+            flex-direction: column;
+            /* Stack content vertically inside each grid cell */
             align-items: flex-start;
             padding: 2px 0;
             position: relative;
             font-size: 0.9rem;
+        }
+
+        .opt-content-wrapper {
+            display: flex;
+            align-items: center;
+            /* Align items vertically center */
+            width: 100%;
         }
 
         .opt-check {
@@ -218,12 +226,19 @@
             height: 14px;
             border: 1.5px solid #000;
             margin-right: 6px;
-            margin-top: 3px;
+            /* margin-top removed for flex centering */
             display: flex;
             align-items: center;
             justify-content: center;
             flex-shrink: 0;
         }
+
+        .opt-text {
+            display: flex;
+            align-items: center;
+            /* Center KEY label vertically with text */
+        }
+
 
         .selected .opt-check {
             background: #000;
@@ -237,18 +252,20 @@
             display: block;
         }
 
-        .correct-key {
-            font-weight: bold;
-        }
-
-        .correct-key::after {
-            content: " (KEY)";
-            font-size: 0.65em;
+        /* Correct Key Styling - Moved next to text */
+        .correct-key-label {
+            font-size: 0.9rem;
             font-family: var(--font-sans);
-            border: 1px solid #000;
             padding: 0px 3px;
             margin-left: 4px;
-            vertical-align: middle;
+            font-weight: bold;
+            white-space: nowrap;
+            /* vertical-align removed for flex centering */
+        }
+
+        /* Used when the option itself is correct */
+        .correct-key-text {
+            font-weight: bold;
         }
 
         .selected-wrong .opt-text {
@@ -264,6 +281,20 @@
             font-size: 0.85rem;
             font-style: italic;
             margin-left: 20px;
+        }
+
+        /* Specific option feedback styling */
+        .opt-feedback {
+            font-size: 0.8em;
+            font-style: italic;
+            color: #444;
+            margin-top: 2px;
+            margin-left: 24px;
+            /* Indent to align with text, past checkbox */
+            padding-left: 5px;
+            border-left: 1px dotted #666;
+            display: block;
+            width: 100%;
         }
 
         .section-title {
@@ -291,7 +322,7 @@
             display: none;
         }
 
-        body.study-mode .correct-key::after {
+        body.study-mode .correct-key-label {
             display: none;
         }
 
@@ -311,6 +342,11 @@
             display: none;
         }
 
+        body.study-mode .opt-feedback {
+            display: none;
+        }
+
+        /* Hide option feedback in study mode */
         body.study-mode .retake-section {
             display: none;
         }
@@ -318,9 +354,13 @@
         /* Retake Section (Always Blank Worksheet Style) */
         .retake-section .score-box,
         .retake-section .status-badge,
-        .retake-section .correct-key::after,
+        .retake-section .correct-key-label,
         .retake-section .selected .opt-check::after,
         .retake-section .feedback-container {
+            display: none;
+        }
+
+        .retake-section .opt-feedback {
             display: none;
         }
 
@@ -391,6 +431,16 @@
                     <span class="meta-label">ID:</span>
                     <span th:text="${studentId}">12345</span>
 
+                    <!-- Submission Metadata -->
+                    <span class="meta-label">Started:</span>
+                    <span th:text="${startedAt} + ' ' + '( ' + ${timeSpent} + ' )'">2023-10-27 10:00</span>
+
+                    <span class="meta-label">Attempt:</span>
+                    <span th:text="${attempt}">1</span>
+
+                    <span class="meta-label">Time Limit</span>
+                    <span th:text="${timeLimit}">1</span>
+
                     <span class="meta-label">Date:</span>
                     <span id="printDate">2023-10-27</span>
                 </div>
@@ -412,13 +462,13 @@
 
                     <div class="q-header-combined">
                         <!-- Correct: ONLY if not wrong AND not unanswered -->
-                        <span class="status-badge status-correct" th:if="${!hasWrong && !q.isUnanswered}">Correct</span>
+                        <span class="status-badge status-correct" th:if="${!hasWrong && !q.isUnanswered}">✔</span>
 
                         <!-- Review: If student actively selected wrong answer -->
-                        <span class="status-badge status-wrong" th:if="${hasWrong}">Review</span>
+                        <span class="status-badge status-wrong" th:if="${hasWrong}">✖</span>
 
                         <!-- Unanswered: If student didn't answer -->
-                        <span class="status-badge status-unanswered" th:if="${q.isUnanswered}">Unanswered</span>
+                        <span class="status-badge status-unanswered" th:if="${q.isUnanswered}">▲</span>
 
                         <!-- Question Text inline -->
                         <span class="q-text-inline" th:utext="${q.questionHtml}">Question Text</span>
@@ -426,16 +476,26 @@
 
                     <ul class="options-list">
                         <li th:each="opt : ${q.options}" class="opt-row"
-                            th:classappend="${opt.isSelected ? 'selected' : ''} + ' ' + ${opt.isSelectedAndWrong ? 'selected-wrong' : ''} + ' ' + ${opt.isCorrect ? 'correct-key' : ''}">
+                            th:classappend="${opt.isSelected ? 'selected' : ''} + ' ' + ${opt.isSelectedAndWrong ? 'selected-wrong' : ''}">
 
-                            <!-- Visual Checkbox -->
-                            <div class="opt-check"></div>
-                            <div class="opt-text" th:text="${opt.text}">Option Text</div>
+                            <div class="opt-content-wrapper">
+                                <!-- Visual Checkbox -->
+                                <div class="opt-check"></div>
+                                <div class="opt-text" th:classappend="${opt.isCorrect ? 'correct-key-text' : ''}">
+                                    <span th:text="${opt.text}">Option Text</span>
+                                    <span class="correct-key-label" th:if="${opt.isCorrect}">✔</span>
+                                </div>
+                            </div>
+
+                            <!-- Show specific feedback for this option directly underneath -->
+                            <div class="opt-feedback" th:if="${opt.feedback != null}">
+                                <span th:utext="${opt.feedback}"></span>
+                            </div>
                         </li>
                     </ul>
 
-                    <!-- Simple Feedback Span -->
-                    <div class="feedback-container" th:if="${q.feedbackText != null}">
+                    <!-- General Feedback Span (Updated Logic) -->
+                    <div class="feedback-container" th:if="${q.feedbackText != null && !q.feedbackText.isEmpty()}">
                         <span th:utext="${q.feedbackText}"></span>
                     </div>
 
@@ -458,10 +518,15 @@
 
                 <ul class="options-list">
                     <li th:each="opt : ${q.options}" class="opt-row"
-                        th:classappend="${opt.isSelected ? 'selected' : ''} + ' ' + ${opt.isSelectedAndWrong ? 'selected-wrong' : ''} + ' ' + ${opt.isCorrect ? 'correct-key' : ''}">
+                        th:classappend="${opt.isSelected ? 'selected' : ''} + ' ' + ${opt.isSelectedAndWrong ? 'selected-wrong' : ''}">
 
-                        <div class="opt-check"></div>
-                        <div class="opt-text" th:text="${opt.text}">Option Text</div>
+                        <div class="opt-content-wrapper">
+                            <div class="opt-check"></div>
+                            <div class="opt-text">
+                                <span th:text="${opt.text}">Option Text</span>
+                                <span class="correct-key-label" th:if="${opt.isCorrect}">✔</span>
+                            </div>
+                        </div>
                     </li>
                 </ul>
             </div>

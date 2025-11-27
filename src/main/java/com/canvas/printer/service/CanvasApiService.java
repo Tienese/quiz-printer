@@ -78,6 +78,17 @@ public class CanvasApiService {
         return fetchList(url, new TypeReference<>() {
         });
     }
+
+    // 6. Get Quiz Submission (NEW: Specifically for Time Data)
+    // This endpoint returns the specific Quiz Submission object which contains
+    // started_at and finished_at
+    public String getQuizSubmissionJson(String courseId, String quizId, String studentId) {
+        // The endpoint to list quiz submissions, filtered by user_id
+        String url = canvasUrl + "/api/v1/courses/" + courseId + "/quizzes/" + quizId +
+                "/submissions?user_ids[]=" + studentId;
+        return fetchRaw(url);
+    }
+
     // --- Helpers ---
 
     private <T> List<T> fetchList(String url, TypeReference<List<T>> typeRef) {
