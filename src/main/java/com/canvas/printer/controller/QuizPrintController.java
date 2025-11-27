@@ -35,19 +35,17 @@ public class QuizPrintController {
                 logger.error("Service returned null.");
                 return "error";
             }
-            // --- NEW: Filter for Review Sheet (Java Logic) ---
-            // We want questions that are WRONG or SKIPPED (No selection)
+
+            // --- UPDATED: Filter for Review Sheet ---
+            // A question is "Incorrect" if:
+            // 1. The student selected a wrong option (Commission Error)
+            // 2. OR The student failed to select a correct option (Omission Error)
             var reviewQuestions = quizData.questions().stream()
-                    .filter(q -> {
-                        boolean hasWrong = q.options().stream().anyMatch(o -> o.isSelectedAndWrong());
-                        boolean isSkipped = q.options().stream().noneMatch(o -> o.isSelected());
-                        return hasWrong || isSkipped;
-                    })
+                    .filter(q -> q.options().stream()
+                            .anyMatch(o -> o.isSelectedAndWrong() || (o.isCorrect() && !o.isSelected())))
                     .toList();
 
             logger.info("Review Sheet: Found {} questions to review.", reviewQuestions.size());
-
-            // 2. Pass Data to HTML
 
             // Pass the filtered list separately
             model.addAttribute("reviewQuestions", reviewQuestions);

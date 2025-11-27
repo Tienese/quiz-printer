@@ -29,7 +29,8 @@
         body {
             font-family: var(--font-serif);
             color: var(--c-ink);
-            background: #555; /* Screen background */
+            background: #555;
+            /* Screen background */
             margin: 0;
             padding: 20px;
         }
@@ -58,7 +59,7 @@
             background: #fff;
             padding: 10px;
             border-radius: 4px;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
         }
 
         .btn {
@@ -71,8 +72,14 @@
             margin-right: 10px;
         }
 
-        .btn:hover { background: #eee; }
-        .btn.active { background: #333; color: #fff; }
+        .btn:hover {
+            background: #eee;
+        }
+
+        .btn.active {
+            background: #333;
+            color: #fff;
+        }
 
         /* =========================================
            4. HEADER SECTION 
@@ -100,7 +107,10 @@
             font-size: 0.9rem;
         }
 
-        .meta-label { font-weight: bold; font-family: var(--font-sans); }
+        .meta-label {
+            font-weight: bold;
+            font-family: var(--font-sans);
+        }
 
         /* Score Badge - High Contrast Box */
         .score-box {
@@ -109,9 +119,21 @@
             text-align: center;
             min-width: 120px;
         }
-        
-        .score-val { font-size: 2.5rem; font-weight: 900; line-height: 1; display: block; }
-        .score-max { font-size: 0.9rem; border-top: 1px solid #000; display: block; margin-top: 5px; padding-top: 2px; }
+
+        .score-val {
+            font-size: 2.5rem;
+            font-weight: 900;
+            line-height: 1;
+            display: block;
+        }
+
+        .score-max {
+            font-size: 0.9rem;
+            border-top: 1px solid #000;
+            display: block;
+            margin-top: 5px;
+            padding-top: 2px;
+        }
 
         /* =========================================
            5. QUESTIONS LAYOUT
@@ -146,8 +168,15 @@
             margin-right: 10px;
         }
 
-        .status-correct { background: #fff; color: #000; }
-        .status-wrong { background: #000; color: #fff; }
+        .status-correct {
+            background: #fff;
+            color: #000;
+        }
+
+        .status-wrong {
+            background: #000;
+            color: #fff;
+        }
 
         .q-text {
             font-weight: 500;
@@ -184,9 +213,10 @@
 
         /* Styles for Student Selection */
         .selected .opt-check {
-            background: #000; /* Filled box for selection */
+            background: #000;
+            /* Filled box for selection */
         }
-        
+
         .selected .opt-check::after {
             content: "";
             width: 6px;
@@ -199,7 +229,7 @@
         .correct-key {
             font-weight: bold;
         }
-        
+
         .correct-key::after {
             content: " (KEY)";
             font-size: 0.7em;
@@ -215,62 +245,120 @@
         }
 
         /* =========================================
-           6. LEARNER REFLECTION AREA (The Improvement)
+           6. FEEDBACK & SECTIONS
            ========================================= */
-        .reflection-area {
-            margin-top: 15px;
-            border: 2px dotted #999;
-            padding: 15px;
-            background: #fdfdfd;
-            display: none; /* Hidden by default, shown for wrong answers */
-        }
-
-        .reflection-title {
+        .section-title {
+            text-align: center;
             font-family: var(--font-sans);
-            font-size: 0.8rem;
-            text-transform: uppercase;
-            color: #666;
-            margin-bottom: 5px;
-            display: block;
+            font-weight: 700;
+            font-size: 1.4rem;
+            border-top: 1px solid #000;
+            border-bottom: 1px solid #000;
+            padding: 5px;
+            margin: 30px 0;
+            background: #f9f9f9;
         }
 
-        .reflection-lines {
-            height: 60px;
-            background-image: repeating-linear-gradient(white 0px, white 24px, #ccc 25px);
-        }
-
-        /* Only show reflection for wrong answers */
-        .question-block[data-status="wrong"] .reflection-area {
-            display: block;
+        .feedback-container {
+            margin-top: 10px;
+            padding: 5px;
+            border-left: 3px solid #666;
+            background-color: #f9f9f9;
+            font-size: 0.9rem;
+            font-style: italic;
         }
 
         /* =========================================
-           7. STUDY MODE (Hide Answers)
+           7. STUDY / RETAKE MODES
            ========================================= */
-        body.study-mode .score-box { visibility: hidden; }
-        body.study-mode .status-badge { display: none; }
-        body.study-mode .correct-key::after { display: none; }
-        body.study-mode .selected-wrong .opt-text { text-decoration: none; }
-        body.study-mode .selected .opt-check { background: transparent; }
-        body.study-mode .selected .opt-check::after { display: none; }
-        body.study-mode .reflection-area { display: none !important; }
-        body.study-mode .feedback { display: none; }
+
+        /* Global Study Mode (Toggled via button) */
+        body.study-mode .score-box {
+            visibility: hidden;
+        }
+
+        body.study-mode .status-badge {
+            display: none;
+        }
+
+        body.study-mode .correct-key::after {
+            display: none;
+        }
+
+        body.study-mode .selected-wrong .opt-text {
+            text-decoration: none;
+        }
+
+        body.study-mode .selected .opt-check {
+            background: transparent;
+        }
+
+        body.study-mode .selected .opt-check::after {
+            display: none;
+        }
+
+        body.study-mode .feedback-container {
+            display: none;
+        }
+
+        /* If in "Blank Worksheet" mode, hide the duplicate Retake section */
+        body.study-mode .retake-section {
+            display: none;
+        }
+
+        /* Retake Section - FORCE "Blank" look for this section regardless of mode */
+        .retake-section .score-box,
+        .retake-section .status-badge,
+        .retake-section .correct-key::after,
+        .retake-section .selected .opt-check::after,
+        .retake-section .feedback-container {
+            display: none;
+        }
+
+        /* Remove selection styling in retake section */
+        .retake-section .selected .opt-check {
+            background: transparent;
+        }
+
+        .retake-section .selected-wrong .opt-text {
+            text-decoration: none;
+        }
+
+        .retake-section .question-block {
+            border-bottom: 1px solid #eee;
+        }
 
         /* =========================================
            8. PRINT MEDIA QUERIES
            ========================================= */
         @media print {
-            body { 
-                background: none; 
-                padding: 0; 
+            body {
+                background: none;
+                padding: 0;
                 -webkit-print-color-adjust: exact;
                 print-color-adjust: exact;
             }
-            .controls { display: none; }
-            .sheet { width: 100%; box-shadow: none; padding: 0; margin: 0; }
-            
+
+            .controls {
+                display: none;
+            }
+
+            .sheet {
+                width: 100%;
+                box-shadow: none;
+                padding: 0;
+                margin: 0;
+            }
+
             /* Force page breaks */
-            .question-block { break-inside: avoid; }
+            .question-block {
+                break-inside: avoid;
+            }
+
+            .page-break-before {
+                break-before: page;
+                page-break-before: always;
+            }
         }
     </style>
 </head>
@@ -292,27 +380,28 @@
                 <div class="meta-grid">
                     <span class="meta-label">Student:</span>
                     <span th:text="${studentName}">Name</span>
-                    
+
                     <span class="meta-label">ID:</span>
                     <span th:text="${studentId}">12345</span>
-                    
+
                     <span class="meta-label">Date:</span>
                     <span id="printDate">2023-10-27</span>
                 </div>
             </div>
-            
+
             <div class="score-box">
                 <span class="score-val" th:text="${score}">88</span>
                 <span class="score-max">/ <span th:text="${pointsPossible}">100</span> PTS</span>
             </div>
         </header>
 
+        <!-- MAIN REVIEW SECTION -->
         <div class="questions-wrapper">
             <div th:each="q : ${questions}" class="question-block"
-                 th:attr="data-status=${#aggregates.sum(q.options.![isSelectedAndWrong ? 1 : 0]) > 0 ? 'wrong' : 'correct'}">
-                
+                th:attr="data-status=${#aggregates.sum(q.options.![isSelectedAndWrong ? 1 : 0]) > 0 ? 'wrong' : 'correct'}">
+
                 <div th:remove="tag" th:with="hasWrong=${#aggregates.sum(q.options.![isSelectedAndWrong ? 1 : 0]) > 0}">
-                    
+
                     <div class="q-meta">
                         <span class="q-num" th:text="'Q' + ${q.questionNumber} + '.'">1.</span>
                         <span class="status-badge status-correct" th:if="${!hasWrong}">Correct</span>
@@ -322,27 +411,53 @@
                     <div class="q-text" th:utext="${q.questionHtml}">Question Text</div>
 
                     <ul class="options-list">
-                        <li th:each="opt : ${q.options}" class="opt-row" 
+                        <li th:each="opt : ${q.options}" class="opt-row"
                             th:classappend="${opt.isSelected ? 'selected' : ''} + ' ' + ${opt.isSelectedAndWrong ? 'selected-wrong' : ''} + ' ' + ${opt.isCorrect ? 'correct-key' : ''}">
-                            
+
                             <!-- Visual Checkbox -->
                             <div class="opt-check"></div>
                             <div class="opt-text" th:text="${opt.text}">Option Text</div>
                         </li>
                     </ul>
 
-                    <!-- Improvement: Learner Reflection Area for Wrong Answers -->
-                    <div class="reflection-area">
-                        <span class="reflection-title">My Correction Notes (Why did I miss this?):</span>
-                        <div class="reflection-lines"></div>
-                        <div style="margin-top:10px; font-size:0.85em; font-style:italic;" th:if="${q.feedbackText != null}">
-                            <strong>Instructor Feedback:</strong> <span th:utext="${q.feedbackText}"></span>
-                        </div>
+                    <!-- Replacement: Simple Feedback Span -->
+                    <div class="feedback-container" th:if="${q.feedbackText != null}">
+                        <span th:utext="${q.feedbackText}"></span>
                     </div>
 
                 </div>
             </div>
         </div>
+
+        <!-- NEW RETAKE SECTION -->
+        <!-- Only display if there are incorrect questions (provided by Java controller) -->
+        <div class="retake-section" th:if="${!reviewQuestions.empty}">
+            <div class="section-title page-break-before">RETAKE INCORRECT QUESTIONS</div>
+            <p style="text-align:center; font-style:italic; margin-bottom:20px;">
+                Practice Area: Attempt these questions again without looking at the key.
+            </p>
+
+            <!-- Loop through the pre-filtered Review Questions -->
+            <div th:each="q : ${reviewQuestions}" class="question-block">
+
+                <div class="q-meta">
+                    <span class="q-num" th:text="'Q' + ${q.questionNumber} + '.'">1.</span>
+                </div>
+
+                <div class="q-text" th:utext="${q.questionHtml}">Question Text</div>
+
+                <ul class="options-list">
+                    <li th:each="opt : ${q.options}" class="opt-row"
+                        th:classappend="${opt.isSelected ? 'selected' : ''} + ' ' + ${opt.isSelectedAndWrong ? 'selected-wrong' : ''} + ' ' + ${opt.isCorrect ? 'correct-key' : ''}">
+
+                        <!-- Visual Checkbox -->
+                        <div class="opt-check"></div>
+                        <div class="opt-text" th:text="${opt.text}">Option Text</div>
+                    </li>
+                </ul>
+            </div>
+        </div>
+
     </div>
 
     <script>
@@ -352,7 +467,7 @@
             const body = document.body;
             const btn = document.getElementById('btnToggleStudy');
             body.classList.toggle('study-mode');
-            
+
             if (body.classList.contains('study-mode')) {
                 btn.innerText = "Mode: Blank Worksheet";
                 btn.style.background = "#333";
@@ -365,4 +480,5 @@
         }
     </script>
 </body>
+
 </html>
