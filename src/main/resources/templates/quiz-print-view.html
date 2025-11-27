@@ -44,7 +44,7 @@
             min-height: 297mm;
             margin: 0 auto;
             padding: 10mm;
-            /* Reduced padding */
+            /* Compact padding */
             position: relative;
             box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
         }
@@ -65,7 +65,6 @@
 
         .btn {
             padding: 6px 12px;
-            /* Smaller buttons */
             border: 2px solid #333;
             background: #fff;
             color: #333;
@@ -90,13 +89,9 @@
         .header-section {
             border-bottom: var(--border-thick);
             padding-bottom: 10px;
-            /* Reduced padding */
             margin-bottom: 15px;
-            /* Reduced margin */
             display: grid;
-            /* Changed to Grid for better column control */
             grid-template-columns: 1fr 120px;
-            /* Specific width for score box */
             gap: 20px;
             align-items: start;
         }
@@ -104,7 +99,6 @@
         .header-info h1 {
             font-family: var(--font-sans);
             font-size: 1.5rem;
-            /* Slightly smaller font */
             margin: 0 0 5px 0;
             text-transform: uppercase;
         }
@@ -112,13 +106,9 @@
         .meta-grid {
             display: grid;
             grid-template-columns: auto 1fr;
-            /* Label gets auto width, Value takes rest */
             gap: 2px 15px;
-            /* Tighter gap */
             font-size: 0.85rem;
-            /* Smaller font */
             align-items: baseline;
-            /* Align text baselines */
         }
 
         .meta-label {
@@ -127,14 +117,11 @@
             white-space: nowrap;
         }
 
-        /* Score Badge - High Contrast Box */
         .score-box {
             border: var(--border-thick);
             padding: 5px;
-            /* Reduced padding inside score box */
             text-align: center;
             height: 100%;
-            /* Match height of info section if needed, though grid handles alignment */
             display: flex;
             flex-direction: column;
             justify-content: center;
@@ -156,15 +143,13 @@
         }
 
         /* =========================================
-           5. QUESTIONS LAYOUT
+           5. QUESTIONS LAYOUT (Compact)
            ========================================= */
         .question-block {
             margin-bottom: 15px;
-            /* Reduced margin */
             page-break-inside: avoid;
             border-bottom: 1px dashed #ccc;
             padding-bottom: 10px;
-            /* Reduced padding */
         }
 
         /* Combined Meta and Text Container */
@@ -173,20 +158,17 @@
             line-height: 1.4;
         }
 
-        /* Status Indicators (No Color Reliance) */
+        /* Status Badges */
         .status-badge {
             border: 1px solid #000;
             padding: 1px 6px;
-            /* Smaller padding */
             font-size: 0.65rem;
-            /* Smaller font */
             text-transform: uppercase;
             font-weight: bold;
             margin-right: 8px;
             display: inline-block;
             vertical-align: middle;
             transform: translateY(-2px);
-            /* visual alignment */
         }
 
         .status-correct {
@@ -199,11 +181,17 @@
             color: #fff;
         }
 
+        /* NEW: Unanswered Badge Style */
+        .status-unanswered {
+            background: #fff;
+            color: #000;
+            border: 1px dashed #000;
+        }
+
         .q-text-inline {
             font-weight: 500;
             font-size: 1rem;
             display: inline;
-            /* Makes text flow next to badge */
         }
 
         /* Options Layout - 2 Columns & Indented */
@@ -211,10 +199,8 @@
             list-style: none;
             padding: 0;
             margin: 0 0 0 20px;
-            /* Indentation added */
             display: grid;
             grid-template-columns: 1fr 1fr;
-            /* 2 Columns */
             column-gap: 15px;
             row-gap: 2px;
         }
@@ -222,32 +208,25 @@
         .opt-row {
             display: flex;
             align-items: flex-start;
-            /* Align top for multiline text */
             padding: 2px 0;
             position: relative;
             font-size: 0.9rem;
-            /* Slightly smaller options text */
         }
 
-        /* Checkboxes for print simulation */
         .opt-check {
             width: 14px;
-            /* Smaller checkbox */
             height: 14px;
             border: 1.5px solid #000;
             margin-right: 6px;
             margin-top: 3px;
-            /* Align with text */
             display: flex;
             align-items: center;
             justify-content: center;
             flex-shrink: 0;
         }
 
-        /* Styles for Student Selection */
         .selected .opt-check {
             background: #000;
-            /* Filled box for selection */
         }
 
         .selected .opt-check::after {
@@ -258,7 +237,6 @@
             display: block;
         }
 
-        /* Styles for Correct Key (if different from selection) */
         .correct-key {
             font-weight: bold;
         }
@@ -273,28 +251,11 @@
             vertical-align: middle;
         }
 
-        /* Strike through wrong answers */
         .selected-wrong .opt-text {
             text-decoration: line-through;
         }
 
-        /* =========================================
-           6. FEEDBACK & SECTIONS
-           ========================================= */
-        .section-title {
-            text-align: center;
-            font-family: var(--font-sans);
-            font-weight: 700;
-            font-size: 1.2rem;
-            /* Smaller title */
-            border-top: 1px solid #000;
-            border-bottom: 1px solid #000;
-            padding: 3px;
-            margin: 20px 0 10px 0;
-            /* Reduced margin */
-            background: #f9f9f9;
-        }
-
+        /* Feedback Section */
         .feedback-container {
             margin-top: 5px;
             padding: 3px 5px;
@@ -303,14 +264,25 @@
             font-size: 0.85rem;
             font-style: italic;
             margin-left: 20px;
-            /* Align with options */
+        }
+
+        .section-title {
+            text-align: center;
+            font-family: var(--font-sans);
+            font-weight: 700;
+            font-size: 1.2rem;
+            border-top: 1px solid #000;
+            border-bottom: 1px solid #000;
+            padding: 3px;
+            margin: 20px 0 10px 0;
+            background: #f9f9f9;
         }
 
         /* =========================================
-           7. STUDY / RETAKE MODES
+           6. MODES
            ========================================= */
 
-        /* Global Study Mode (Toggled via button) */
+        /* Study Mode (Hides everything) */
         body.study-mode .score-box {
             visibility: hidden;
         }
@@ -339,12 +311,11 @@
             display: none;
         }
 
-        /* If in "Blank Worksheet" mode, hide the duplicate Retake section */
         body.study-mode .retake-section {
             display: none;
         }
 
-        /* Retake Section - FORCE "Blank" look for this section regardless of mode */
+        /* Retake Section (Always Blank Worksheet Style) */
         .retake-section .score-box,
         .retake-section .status-badge,
         .retake-section .correct-key::after,
@@ -353,7 +324,6 @@
             display: none;
         }
 
-        /* Remove selection styling in retake section */
         .retake-section .selected .opt-check {
             background: transparent;
         }
@@ -367,7 +337,7 @@
         }
 
         /* =========================================
-           8. PRINT MEDIA QUERIES
+           7. PRINT
            ========================================= */
         @media print {
             body {
@@ -388,7 +358,6 @@
                 margin: 0;
             }
 
-            /* Force page breaks */
             .question-block {
                 break-inside: avoid;
             }
@@ -435,14 +404,23 @@
 
         <!-- MAIN REVIEW SECTION -->
         <div class="questions-wrapper">
-            <div th:each="q : ${questions}" class="question-block"
-                th:attr="data-status=${#aggregates.sum(q.options.![isSelectedAndWrong ? 1 : 0]) > 0 ? 'wrong' : 'correct'}">
+            <div th:each="q : ${questions}" class="question-block">
 
+                <!-- Logic: hasWrong is true if student selected a wrong answer -->
+                <!-- q.isUnanswered is true if student selected NO answers -->
                 <div th:remove="tag" th:with="hasWrong=${#aggregates.sum(q.options.![isSelectedAndWrong ? 1 : 0]) > 0}">
 
                     <div class="q-header-combined">
-                        <span class="status-badge status-correct" th:if="${!hasWrong}">Correct</span>
+                        <!-- Correct: ONLY if not wrong AND not unanswered -->
+                        <span class="status-badge status-correct" th:if="${!hasWrong && !q.isUnanswered}">Correct</span>
+
+                        <!-- Review: If student actively selected wrong answer -->
                         <span class="status-badge status-wrong" th:if="${hasWrong}">Review</span>
+
+                        <!-- Unanswered: If student didn't answer -->
+                        <span class="status-badge status-unanswered" th:if="${q.isUnanswered}">Unanswered</span>
+
+                        <!-- Question Text inline -->
                         <span class="q-text-inline" th:utext="${q.questionHtml}">Question Text</span>
                     </div>
 
@@ -456,7 +434,7 @@
                         </li>
                     </ul>
 
-                    <!-- Replacement: Simple Feedback Span -->
+                    <!-- Simple Feedback Span -->
                     <div class="feedback-container" th:if="${q.feedbackText != null}">
                         <span th:utext="${q.feedbackText}"></span>
                     </div>
@@ -465,19 +443,16 @@
             </div>
         </div>
 
-        <!-- NEW RETAKE SECTION -->
-        <!-- Only display if there are incorrect questions (provided by Java controller) -->
+        <!-- RETAKE SECTION -->
         <div class="retake-section" th:if="${!reviewQuestions.empty}">
             <div class="section-title page-break-before">RETAKE INCORRECT QUESTIONS</div>
             <p style="text-align:center; font-style:italic; margin-bottom:10px; font-size: 0.9rem;">
                 Practice Area: Attempt these questions again without looking at the key.
             </p>
 
-            <!-- Loop through the pre-filtered Review Questions -->
             <div th:each="q : ${reviewQuestions}" class="question-block">
-
                 <div class="q-header-combined">
-                    <!-- Removed Badges for Retake Section -->
+                    <!-- Removed Badges for Retake -->
                     <span class="q-text-inline" th:utext="${q.questionHtml}">Question Text</span>
                 </div>
 
@@ -485,7 +460,6 @@
                     <li th:each="opt : ${q.options}" class="opt-row"
                         th:classappend="${opt.isSelected ? 'selected' : ''} + ' ' + ${opt.isSelectedAndWrong ? 'selected-wrong' : ''} + ' ' + ${opt.isCorrect ? 'correct-key' : ''}">
 
-                        <!-- Visual Checkbox -->
                         <div class="opt-check"></div>
                         <div class="opt-text" th:text="${opt.text}">Option Text</div>
                     </li>

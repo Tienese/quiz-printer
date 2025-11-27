@@ -137,7 +137,14 @@ public class QuizMergerService {
             printableOptions = processStandardOptions(qNode, studentAnswerNode, qType);
         }
 
-        return new PrintableQuestion(questionNumber, questionText, printableOptions, feedback);
+        // C. Determine if Unanswered
+        // A question is unanswered if NO options are selected by the student
+        boolean isUnanswered = printableOptions.stream().noneMatch(PrintableOption::isSelected);
+
+        // Special check for Matching/Dropdowns where "No Answer" text might be generated
+        // (This logic might need tuning depending on how strict you want "unanswered" to be for complex types)
+        
+        return new PrintableQuestion(questionNumber, questionText, printableOptions, feedback, isUnanswered);
     }
 
     // --- 1. Matching Questions Logic ---
