@@ -6,550 +6,396 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title th:text="|Result: ${studentId}|">Exam Results</title>
     <link
-        href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;700&family=Noto+Serif+JP:wght@400;700&display=swap"
+        href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;700&family=Noto+Serif+JP:wght@400;700&display=swap"
         rel="stylesheet">
 
     <style>
         /* =========================================
-           1. CONFIGURATION & VARIABLES
+           1. SETUP & UTILITIES
            ========================================= */
         :root {
-            --font-serif: "Noto Serif JP", serif;
-            --font-sans: "Noto Sans JP", sans-serif;
-            --c-ink: #000;
-            --c-paper: #fff;
-            --border-thick: 2px solid #000;
-            --border-thin: 1px solid #000;
+            --f-serif: "Noto Serif JP", serif;
+            --f-sans: "Noto Sans JP", sans-serif;
+            --sz-base: 10pt;
+            /* Kích thước tối ưu cho in ấn mật độ cao */
+            --sz-sm: 9pt;
+            --lh-tight: 1.3;
+        }
+
+        @page {
+            size: A4;
+            margin: 15mm;
+            /* Chuẩn in ấn tiết kiệm */
         }
 
         * {
             box-sizing: border-box;
+            -webkit-print-color-adjust: exact;
+            print-color-adjust: exact;
         }
 
         body {
-            font-family: var(--font-serif);
-            color: var(--c-ink);
-            background: #555;
-            /* Screen background */
+            font-family: var(--f-serif);
+            font-size: var(--sz-base);
+            line-height: var(--lh-tight);
+            color: #000;
+            background: #fff;
             margin: 0;
-            padding: 20px;
+            padding: 0;
+        }
+
+        /* Ẩn UI điều khiển khi in */
+        @media print {
+            .no-print {
+                display: none !important;
+            }
+
+            body {
+                padding: 0;
+            }
         }
 
         /* =========================================
-           2. PAPER SIMULATION (A4)
+           2. HEADER (Compact 3 Lines)
            ========================================= */
-        .sheet {
-            background: var(--c-paper);
-            width: 210mm;
-            min-height: 297mm;
-            margin: 0 auto;
-            padding: 10mm;
-            /* Compact padding */
-            position: relative;
-            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
-        }
-
-        /* =========================================
-           3. UI CONTROLS (Screen Only)
-           ========================================= */
-        .controls {
-            max-width: 210mm;
-            margin: 0 auto 10px auto;
+        .header-compact {
             display: flex;
             justify-content: space-between;
-            background: #fff;
-            padding: 10px;
-            border-radius: 4px;
-            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+            align-items: flex-end;
+            border-bottom: 2px solid #000;
+            padding-bottom: 5px;
+            margin-bottom: 10px;
         }
 
-        .btn {
-            padding: 6px 12px;
-            border: 2px solid #333;
-            background: #fff;
-            color: #333;
-            font-weight: bold;
-            cursor: pointer;
-            margin-right: 10px;
-            font-size: 0.9rem;
-        }
-
-        .btn:hover {
-            background: #eee;
-        }
-
-        .btn.active {
-            background: #333;
-            color: #fff;
-        }
-
-        /* =========================================
-           4. HEADER SECTION 
-           ========================================= */
-        .header-section {
-            border-bottom: var(--border-thick);
-            padding-bottom: 10px;
-            margin-bottom: 15px;
-            display: grid;
-            grid-template-columns: 1fr 120px;
-            gap: 20px;
-            align-items: start;
-        }
-
-        .header-info h1 {
-            font-family: var(--font-sans);
-            font-size: 1.5rem;
-            margin: 0 0 5px 0;
+        .header-left h1 {
+            font-family: var(--f-sans);
+            font-size: 14pt;
+            margin: 0;
             text-transform: uppercase;
+            font-weight: 700;
         }
 
-        .meta-grid {
-            display: grid;
-            grid-template-columns: auto 1fr;
-            gap: 2px 15px;
-            font-size: 0.85rem;
-            align-items: baseline;
+        .meta-line {
+            font-size: var(--sz-sm);
+            margin-top: 2px;
         }
 
-        .meta-label {
-            font-weight: bold;
-            font-family: var(--font-sans);
-            white-space: nowrap;
+        .meta-line span {
+            margin-right: 15px;
         }
 
-        .score-box {
-            border: var(--border-thick);
-            padding: 5px;
-            text-align: center;
-            height: 100%;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
+        .score-compact {
+            text-align: right;
+            line-height: 1;
         }
 
         .score-val {
-            font-size: 2rem;
-            font-weight: 900;
-            line-height: 1;
-            display: block;
+            font-size: 18pt;
+            font-weight: 700;
+            font-family: var(--f-sans);
         }
 
-        .score-max {
-            font-size: 0.8rem;
-            border-top: 1px solid #000;
+        .score-total {
+            font-size: 9pt;
             display: block;
-            margin-top: 2px;
-            padding-top: 2px;
         }
 
         /* =========================================
-           5. QUESTIONS LAYOUT (Compact)
+           3. QUESTION BLOCK (High Density)
            ========================================= */
-        .question-block {
-            margin-bottom: 15px;
-            page-break-inside: avoid;
-            padding-bottom: 10px;
-        }
-
-        /* Combined Meta and Text Container */
-        .q-header-combined {
+        .q-block {
             margin-bottom: 8px;
-            line-height: 1.4;
+            /* Khoảng cách giữa các câu cực nhỏ */
+            break-inside: avoid;
+            /* Tránh bị ngắt giữa trang */
+            page-break-inside: avoid;
         }
 
-        /* Status Badges */
-        .status-badge {
-            border: 1px solid #000;
-            padding: 1px 7px;
-            font-size: 0.65rem;
-            text-transform: uppercase;
+        .q-line {
+            display: block;
+            margin-bottom: 3px;
+            font-weight: 500;
+        }
+
+        /* Markers: ✓ ✗ ▲ */
+        .marker {
+            font-family: var(--f-sans);
             font-weight: bold;
-            margin-right: 8px;
             display: inline-block;
-            vertical-align: middle;
-            transform: translateY(-2px);
+            width: 15px;
+            /* Cố định độ rộng để thẳng hàng */
         }
 
-        .status-correct {
-            background: #fff;
+        .m-correct {
             color: #000;
         }
 
-        .status-wrong {
+        .m-wrong {
+            color: #000;
+            text-decoration: underline;
+        }
+
+        /* Underline để nhấn mạnh in đen trắng */
+        .m-miss {
+            font-size: 0.8em;
+        }
+
+        /* =========================================
+           4. OPTIONS (Compact Grid)
+           ========================================= */
+        .opt-list {
+            list-style: none;
+            padding: 0 0 0 20px;
+            /* Thụt đầu dòng nhẹ */
+            margin: 0;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            /* 2 Cột để tiết kiệm chiều dọc */
+            column-gap: 10px;
+            row-gap: 5px;
+            /* Tăng nhẹ gap dòng để chứa feedback */
+            counter-reset: opt-counter;
+            /* Khởi tạo bộ đếm ABC */
+        }
+
+        .opt-item {
+            position: relative;
+            font-size: var(--sz-sm);
+            display: flex;
+            align-items: baseline;
+            flex-wrap: wrap;
+            /* Cho phép xuống dòng nếu cần (cho feedback) */
+        }
+
+        /* Tự động sinh [A] [B] [C] */
+        .opt-item::before {
+            counter-increment: opt-counter;
+            content: "[" counter(opt-counter, upper-alpha) "]";
+            font-family: var(--f-sans);
+            font-weight: bold;
+            font-size: 0.85em;
+            margin-right: 5px;
+            min-width: 25px;
+        }
+
+        /* Styling cho lựa chọn của user */
+        .user-selected {
+            font-weight: bold;
+        }
+
+        /* Đánh dấu visual cho lựa chọn */
+        .mark-circle {
+            margin-left: 5px;
+            font-size: 1.1em;
+        }
+
+        /* ● / ○ */
+
+        /* Key Correct hiển thị bên cạnh */
+        .key-badge {
+            font-size: 0.75em;
+            border: 1px solid #000;
+            padding: 0 2px;
+            margin-left: 5px;
+            font-weight: bold;
+        }
+
+        /* =========================================
+           5. FEEDBACK (Minimalist)
+           ========================================= */
+        /* General Question Feedback */
+        .fb-compact {
+            font-size: 8pt;
+            font-style: italic;
+            color: #444;
+            margin-left: 20px;
+            margin-top: 2px;
+            border-left: 1px dotted #000;
+            padding-left: 5px;
+        }
+
+        /* Specific Option Feedback (Nằm dưới option) */
+        .opt-item .fb-compact {
+            width: 100%;
+            /* Chiếm toàn bộ dòng mới */
+            margin-left: 30px;
+            /* Thụt đầu dòng để tránh đè lên [A] */
+            margin-top: 1px;
+            border: none;
+            /* Bỏ border thừa */
+            display: block;
+            color: #555;
+        }
+
+        /* =========================================
+           6. RETAKE SECTION (Checklist Style)
+           ========================================= */
+        .retake-area {
+            margin-top: 20px;
+            border-top: 2px dashed #000;
+            padding-top: 10px;
+        }
+
+        .retake-title {
+            font-family: var(--f-sans);
+            font-weight: bold;
+            font-size: 11pt;
+            text-transform: uppercase;
+            margin-bottom: 10px;
+        }
+
+        /* Checkbox ảo cho bản in */
+        .checkbox-print {
+            display: inline-block;
+            width: 12px;
+            height: 12px;
+            border: 1px solid #000;
+            margin-right: 8px;
+            transform: translateY(2px);
+        }
+
+        /* Screen Controls CSS */
+        .screen-controls {
+            padding: 10px;
+            background: #eee;
+            margin-bottom: 20px;
+            border: 1px solid #ccc;
+            font-family: sans-serif;
+        }
+
+        .btn {
+            background: #fff;
+            border: 1px solid #000;
+            padding: 5px 15px;
+            cursor: pointer;
+            font-weight: bold;
+        }
+
+        .btn:hover {
             background: #000;
             color: #fff;
         }
 
-        /* Unanswered Badge Style */
-        .status-unanswered {
-            background: #fff;
-            color: #000;
-            border: 1px dashed #000;
+        /* Chế độ Blank Worksheet (Study Mode) */
+        body.mode-blank .score-compact,
+        body.mode-blank .marker,
+        body.mode-blank .key-badge,
+        body.mode-blank .fb-compact,
+        body.mode-blank .mark-circle,
+        body.mode-blank .retake-area {
+            display: none !important;
         }
 
-        .q-text-inline {
-            font-weight: 500;
-            font-size: 1rem;
-            display: inline;
-        }
-
-        /* Options Layout - 2 Columns & Indented */
-        .options-list {
-            list-style: none;
-            padding: 0;
-            margin: 0 0 0 20px;
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            column-gap: 15px;
-            row-gap: 2px;
-        }
-
-        .opt-row {
-            display: flex;
-            flex-direction: column;
-            /* Stack content vertically inside each grid cell */
-            align-items: flex-start;
-            padding: 2px 0;
-            position: relative;
-            font-size: 0.9rem;
-        }
-
-        .opt-content-wrapper {
-            display: flex;
-            align-items: center;
-            /* Align items vertically center */
-            width: 100%;
-        }
-
-        .opt-check {
-            width: 14px;
-            height: 14px;
-            border: 1.5px solid #000;
-            margin-right: 6px;
-            /* margin-top removed for flex centering */
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            flex-shrink: 0;
-        }
-
-        .opt-text {
-            display: flex;
-            align-items: center;
-            /* Center KEY label vertically with text */
-        }
-
-
-        .selected .opt-check {
-            background: #000;
-        }
-
-        .selected .opt-check::after {
-            content: "";
-            width: 4px;
-            height: 4px;
-            background: #fff;
-            display: block;
-        }
-
-        /* Correct Key Styling - Moved next to text */
-        .correct-key-label {
-            font-size: 0.9rem;
-            font-family: var(--font-sans);
-            padding: 0px 3px;
-            margin-left: 4px;
-            font-weight: bold;
-            white-space: nowrap;
-            /* vertical-align removed for flex centering */
-        }
-
-        /* Used when the option itself is correct */
-        .correct-key-text {
-            font-weight: bold;
-        }
-
-        .selected-wrong .opt-text {
-            text-decoration: line-through;
-        }
-
-        /* Feedback Section */
-        .feedback-container {
-            margin-top: 5px;
-            padding: 3px 5px;
-            border-left: 2px solid #666;
-            background-color: #f9f9f9;
-            font-size: 0.85rem;
-            font-style: italic;
-            margin-left: 20px;
-        }
-
-        /* Specific option feedback styling */
-        .opt-feedback {
-            font-size: 0.8em;
-            font-style: italic;
-            color: #444;
-            margin-top: 2px;
-            margin-left: 24px;
-            /* Indent to align with text, past checkbox */
-            padding-left: 5px;
-            border-left: 1px dotted #666;
-            display: block;
-            width: 100%;
-        }
-
-        .section-title {
-            text-align: center;
-            font-family: var(--font-sans);
-            font-weight: 700;
-            font-size: 1.2rem;
-            border-top: 1px solid #000;
-            border-bottom: 1px solid #000;
-            padding: 3px;
-            margin: 20px 0 10px 0;
-            background: #f9f9f9;
-        }
-
-        /* =========================================
-           6. MODES
-           ========================================= */
-
-        /* Study Mode (Hides everything) */
-        body.study-mode .score-box {
-            visibility: hidden;
-        }
-
-        body.study-mode .status-badge {
-            display: none;
-        }
-
-        body.study-mode .correct-key-label {
-            display: none;
-        }
-
-        body.study-mode .selected-wrong .opt-text {
-            text-decoration: none;
-        }
-
-        body.study-mode .selected .opt-check {
-            background: transparent;
-        }
-
-        body.study-mode .selected .opt-check::after {
-            display: none;
-        }
-
-        body.study-mode .feedback-container {
-            display: none;
-        }
-
-        body.study-mode .opt-feedback {
-            display: none;
-        }
-
-        /* Hide option feedback in study mode */
-        body.study-mode .retake-section {
-            display: none;
-        }
-
-        /* Retake Section (Always Blank Worksheet Style) */
-        .retake-section .score-box,
-        .retake-section .status-badge,
-        .retake-section .correct-key-label,
-        .retake-section .selected .opt-check::after,
-        .retake-section .feedback-container {
-            display: none;
-        }
-
-        .retake-section .opt-feedback {
-            display: none;
-        }
-
-        .retake-section .selected .opt-check {
-            background: transparent;
-        }
-
-        .retake-section .selected-wrong .opt-text {
-            text-decoration: none;
-        }
-
-        .retake-section .question-block {
-            border-bottom: 1px solid #eee;
-        }
-
-        /* =========================================
-           7. PRINT
-           ========================================= */
-        @media print {
-            body {
-                background: none;
-                padding: 0;
-                -webkit-print-color-adjust: exact;
-                print-color-adjust: exact;
-            }
-
-            .controls {
-                display: none;
-            }
-
-            .sheet {
-                width: 100%;
-                box-shadow: none;
-                padding: 0;
-                margin: 0;
-            }
-
-            .question-block {
-                break-inside: avoid;
-            }
-
-            .page-break-before {
-                break-before: page;
-                page-break-before: always;
-            }
+        body.mode-blank .user-selected {
+            font-weight: normal;
+            /* Bỏ in đậm lựa chọn của user */
         }
     </style>
 </head>
 
 <body>
 
-    <div class="controls no-print">
-        <div style="display:flex; gap:10px; align-items:center;">
-            <strong>Print Options:</strong>
-            <button class="btn btn-print" onclick="window.print()">🖨️ Print</button>
-            <button class="btn" id="btnToggleStudy" onclick="toggleStudyMode()">Mode: Review</button>
+    <!-- UI Điều khiển (Không in ra) -->
+    <div class="screen-controls no-print">
+        <button class="btn" onclick="window.print()">🖨️ Print Result</button>
+        <button class="btn" id="btnMode" onclick="toggleMode()">Mode: With Answers</button>
+        <span style="margin-left:10px; font-size:0.9em">Tip: Set margins to "Minimum" in print dialog.</span>
+    </div>
+
+    <!-- Header Section (3 Dòng tối đa) -->
+    <header class="header-compact">
+        <div class="header-left">
+            <h1 th:text="${quizTitle}">JAPANESE N3 PRACTICE TEST</h1>
+            <div class="meta-line">
+                <span th:text="|Student: ${studentName} (${studentId})|">Student Name (ID)</span>
+                <span th:text="|Date: ${#dates.format(#dates.createNow(), 'dd/MM/yyyy')}|">Date</span>
+            </div>
+            <div class="meta-line">
+                <span th:text="|Time: ${timeSpent} / ${timeLimit} min|">Time</span>
+                <span th:text="|Attempt: #${attempt}|">Attempt #1</span>
+            </div>
+        </div>
+        <div class="score-compact">
+            <span class="score-val" th:text="${score}">85</span>
+            <span class="score-total" th:text="|/ ${pointsPossible} PTS|">/ 100 PTS</span>
+        </div>
+    </header>
+
+    <!-- Main Questions List -->
+    <div class="quiz-body">
+        <div th:each="q, qStat : ${questions}" class="q-block">
+
+            <!-- Logic check status -->
+            <div th:remove="tag" th:with="hasWrong=${#aggregates.sum(q.options.![isSelectedAndWrong ? 1 : 0]) > 0}">
+
+                <div class="q-line">
+                    <!-- Status Markers: Tiết kiệm mực -->
+                    <span class="marker m-correct" th:if="${!hasWrong && !q.isUnanswered}">✓</span>
+                    <span class="marker m-wrong" th:if="${hasWrong}">✗</span>
+                    <span class="marker m-miss" th:if="${q.isUnanswered}">▲</span>
+
+                    <!-- Question Text -->
+                    <span th:utext="${qStat.count + '. ' + q.questionHtml}">1. Question text here...</span>
+                </div>
+
+                <ul class="opt-list">
+                    <li th:each="opt : ${q.options}" class="opt-item"
+                        th:classappend="${opt.isSelected ? 'user-selected' : ''}">
+
+                        <!-- Text -->
+                        <span th:text="${opt.text}">Option text</span>
+
+                        <!-- User Selection Marker (● / ○) -->
+                        <span class="mark-circle" th:if="${opt.isSelected}">●</span>
+
+                        <!-- Correct Key Badge (Chỉ hiện [KEY] nhỏ gọn) -->
+                        <span class="key-badge" th:if="${opt.isCorrect}">KEY</span>
+
+                        <!-- Inline Option Feedback (nằm dưới) -->
+                        <span class="fb-compact" th:if="${opt.feedback != null && !opt.feedback.isEmpty()}"
+                            th:utext="${opt.feedback}"></span>
+                    </li>
+                </ul>
+
+                <!-- General Feedback (Gom gọn) -->
+                <div class="fb-compact" th:if="${q.feedbackText != null && !q.feedbackText.isEmpty()}">
+                    <span th:utext="${q.feedbackText}">Explanation text...</span>
+                </div>
+            </div>
         </div>
     </div>
 
-    <div class="sheet">
-        <header class="header-section">
-            <div class="header-info">
-                <h1 th:text="${quizTitle}">Quiz Title</h1>
-                <div class="meta-grid">
-                    <span class="meta-label">Student:</span>
-                    <span th:text="${studentName}">Name</span>
-
-                    <span class="meta-label">ID:</span>
-                    <span th:text="${studentId}">12345</span>
-
-                    <!-- Submission Metadata -->
-                    <span class="meta-label">Started:</span>
-                    <span th:text="${startedAt} + ' ' + '( ' + ${timeSpent} + ' )'">2023-10-27 10:00</span>
-
-                    <span class="meta-label">Attempt:</span>
-                    <span th:text="${attempt}">1</span>
-
-                    <span class="meta-label">Time Limit</span>
-                    <span th:text="${timeLimit}">1</span>
-
-                    <span class="meta-label">Date:</span>
-                    <span id="printDate">2023-10-27</span>
-                </div>
-            </div>
-
-            <div class="score-box">
-                <span class="score-val" th:text="${score}">88</span>
-                <span class="score-max">/ <span th:text="${pointsPossible}">100</span> PTS</span>
-            </div>
-        </header>
-
-        <!-- MAIN REVIEW SECTION -->
-        <div class="questions-wrapper">
-            <div th:each="q : ${questions}" class="question-block">
-
-                <!-- Logic: hasWrong is true if student selected a wrong answer -->
-                <!-- q.isUnanswered is true if student selected NO answers -->
-                <div th:remove="tag" th:with="hasWrong=${#aggregates.sum(q.options.![isSelectedAndWrong ? 1 : 0]) > 0}">
-
-                    <div class="q-header-combined">
-                        <!-- Correct: ONLY if not wrong AND not unanswered -->
-                        <span class="status-badge status-correct" th:if="${!hasWrong && !q.isUnanswered}">✔</span>
-
-                        <!-- Review: If student actively selected wrong answer -->
-                        <span class="status-badge status-wrong" th:if="${hasWrong}">✖</span>
-
-                        <!-- Unanswered: If student didn't answer -->
-                        <span class="status-badge status-unanswered" th:if="${q.isUnanswered}">▲</span>
-
-                        <!-- Question Text inline -->
-                        <span class="q-text-inline" th:utext="${q.questionHtml}">Question Text</span>
-                    </div>
-
-                    <ul class="options-list">
-                        <li th:each="opt : ${q.options}" class="opt-row"
-                            th:classappend="${opt.isSelected ? 'selected' : ''} + ' ' + ${opt.isSelectedAndWrong ? 'selected-wrong' : ''}">
-
-                            <div class="opt-content-wrapper">
-                                <!-- Visual Checkbox -->
-                                <div class="opt-check"></div>
-                                <div class="opt-text" th:classappend="${opt.isCorrect ? 'correct-key-text' : ''}">
-                                    <span th:text="${opt.text}">Option Text</span>
-                                    <span class="correct-key-label" th:if="${opt.isCorrect}">✔</span>
-                                </div>
-                            </div>
-
-                            <!-- Show specific feedback for this option directly underneath -->
-                            <div class="opt-feedback" th:if="${opt.feedback != null}">
-                                <span th:utext="${opt.feedback}"></span>
-                            </div>
-                        </li>
-                    </ul>
-
-                    <!-- General Feedback Span (Updated Logic) -->
-                    <div class="feedback-container" th:if="${q.feedbackText != null && !q.feedbackText.isEmpty()}">
-                        <span th:utext="${q.feedbackText}"></span>
-                    </div>
-
-                </div>
-            </div>
+    <!-- Retake List (Siêu tiết kiệm - Chỉ list câu hỏi sai) -->
+    <div class="retake-area" th:if="${!reviewQuestions.empty}">
+        <div class="retake-title">Retake / Correction List</div>
+        <div style="font-size: 9pt; font-style: italic; margin-bottom: 5px;">
+            Questions marked with (☐) for manual retake.
         </div>
 
-        <!-- RETAKE SECTION -->
-        <div class="retake-section" th:if="${!reviewQuestions.empty}">
-            <div class="section-title page-break-before">RETAKE INCORRECT QUESTIONS</div>
-            <p style="text-align:center; font-style:italic; margin-bottom:10px; font-size: 0.9rem;">
-                Practice Area: Attempt these questions again without looking at the key.
-            </p>
-
-            <div th:each="q : ${reviewQuestions}" class="question-block">
-                <div class="q-header-combined">
-                    <!-- Removed Badges for Retake -->
-                    <span class="q-text-inline" th:utext="${q.questionHtml}">Question Text</span>
-                </div>
-
-                <ul class="options-list">
-                    <li th:each="opt : ${q.options}" class="opt-row"
-                        th:classappend="${opt.isSelected ? 'selected' : ''} + ' ' + ${opt.isSelectedAndWrong ? 'selected-wrong' : ''}">
-
-                        <div class="opt-content-wrapper">
-                            <div class="opt-check"></div>
-                            <div class="opt-text">
-                                <span th:text="${opt.text}">Option Text</span>
-                                <span class="correct-key-label" th:if="${opt.isCorrect}">✔</span>
-                            </div>
-                        </div>
-                    </li>
-                </ul>
+        <div th:each="q, qStat : ${reviewQuestions}" class="q-block" style="padding-bottom: 5px;">
+            <div class="q-line" style="display: flex;">
+                <span class="checkbox-print"></span> <!-- Checkbox ☐ -->
+                <span th:utext="${q.questionHtml}" style="margin-left: 5px;">Question content</span>
             </div>
-        </div>
 
+            <!-- Options (Không hiện đáp án đúng, chỉ hiện options để chọn lại) -->
+            <ul class="opt-list">
+                <li th:each="opt : ${q.options}" class="opt-item">
+                    <span th:text="${opt.text}">Option A</span>
+                </li>
+            </ul>
+        </div>
     </div>
 
     <script>
-        document.getElementById('printDate').innerText = new Date().toLocaleDateString();
-
-        function toggleStudyMode() {
+        function toggleMode() {
             const body = document.body;
-            const btn = document.getElementById('btnToggleStudy');
-            body.classList.toggle('study-mode');
-
-            if (body.classList.contains('study-mode')) {
-                btn.innerText = "Mode: Blank Worksheet";
-                btn.style.background = "#333";
-                btn.style.color = "#fff";
+            const btn = document.getElementById('btnMode');
+            body.classList.toggle('mode-blank');
+            if (body.classList.contains('mode-blank')) {
+                btn.innerText = "Mode: Blank (Worksheet)";
             } else {
-                btn.innerText = "Mode: Review Results";
-                btn.style.background = "#fff";
-                btn.style.color = "#333";
+                btn.innerText = "Mode: With Answers";
             }
         }
     </script>

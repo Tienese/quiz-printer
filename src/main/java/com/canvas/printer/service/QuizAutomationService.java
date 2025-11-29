@@ -76,7 +76,7 @@ public class QuizAutomationService {
     private String getTestStudentId(String courseId) throws Exception {
         // POST to this endpoint creates the test student if they don't exist
         String url = canvasUrl + "/api/v1/courses/" + courseId + "/student_view_student";
-        JsonNode response = sendRequest(url, "POST", null);
+        JsonNode response = sendRequest(url, "GET   ", null);
         return String.valueOf(response.path("id").asLong());
     }
 
